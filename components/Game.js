@@ -127,7 +127,7 @@ export default function View() {
 function StatusLineView({ status, secondsLeft }) {
 	return (
 		<div className="status-line">
-			<div>Открывай карточки&nbsp;🐰</div>
+			<div>Открывай карточки&nbsp;🐇</div>
 			<div>{status == Status.Running && `Секунды: ${secondsLeft}`}</div>
 		</div>
 	);
@@ -142,9 +142,9 @@ function ScreenBoxView({ status, board, onClickAt }) {
 			return (
 				<Board.ScreenView className="gray">
 					<div>
-						<h1>Игра на запоминание&nbsp;🤓</h1>
+						<h1>Игра на запоминание&nbsp;🐶</h1>
 						<p className="medium" style={{ textAlign: 'center' }}>
-							Нажми и сыграем&nbsp;😎👍!
+							Нажми и сыграем&nbsp;⚽&nbsp;🥅!
 						</p>
 					</div>
 				</Board.ScreenView>
@@ -153,11 +153,9 @@ function ScreenBoxView({ status, board, onClickAt }) {
 			return (
 				<Board.ScreenView className="green">
 					<>
-						<h1>
-							Поздравляю, Солнце&nbsp;☀️, ты победила&nbsp;🏆🏅🥇!
-						</h1>
+						<h1>Победа твоя&nbsp;🎮!</h1>
 						<p className="medium" style={{ textAlign: 'center' }}>
-							Cыграем ещё&nbsp;🎰🎰🎰?
+							Сделаешь растяжку&nbsp;🧘?
 						</p>
 					</>
 				</Board.ScreenView>
@@ -168,10 +166,10 @@ function ScreenBoxView({ status, board, onClickAt }) {
 				<Board.ScreenView className="red">
 					<div>
 						<h1 style={{ paddingLeft: 10 }}>
-							Ты хорошо старалась&nbsp;🧗!
+							Не сдавайся&nbsp;🤺!
 						</h1>
 						<p className="medium" style={{ textAlign: 'center' }}>
-							Кликни, сыграем ещё&nbsp;🥉
+							Попробуй обыграй бигбосса&nbsp;🐱‍👤
 						</p>
 					</div>
 				</Board.ScreenView>

@@ -21,11 +21,11 @@ body {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	min-height: 68px;
+	/* min-height: 68px; */
 }
 
 .cell.closed {
-	cursor: pointer;
+	/* cursor: pointer; */
 	background: darckgtay;
 }
 
@@ -61,10 +61,11 @@ body {
 .screen {
 	display: flex;
 	width: 360px;
+	flex-direction: column;
 	height: 480px;
 	align-items: center;
 	justify-content: center;
-	cursor: pointer;
+	/* cursor: pointer; */
 }
 
 .screen.green {
