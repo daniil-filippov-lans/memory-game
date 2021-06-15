@@ -113,7 +113,7 @@ export default function View() {
 	}, [status]);
 
 	return (
-		<div onClick={handleStartingClick}>
+		<div className="container" onClick={handleStartingClick}>
 			<StatusLineView status={status} secondsLeft={secondsLeft} />
 			<ScreenBoxView
 				status={status}
@@ -128,9 +128,7 @@ function StatusLineView({ status, secondsLeft }) {
 	return (
 		<div className="status-line">
 			<div>Открывай карточки&nbsp;🐰</div>
-			<div>
-				{status == Status.Running && `Секунд осталось: ${secondsLeft}`}
-			</div>
+			<div>{status == Status.Running && `Секунды: ${secondsLeft}`}</div>
 		</div>
 	);
 }
@@ -154,14 +152,14 @@ function ScreenBoxView({ status, board, onClickAt }) {
 		case Status.Won:
 			return (
 				<Board.ScreenView className="green">
-					<div>
+					<>
 						<h1>
 							Поздравляю, Солнце&nbsp;☀️, ты победила&nbsp;🏆🏅🥇!
 						</h1>
 						<p className="medium" style={{ textAlign: 'center' }}>
 							Cыграем ещё&nbsp;🎰🎰🎰?
 						</p>
-					</div>
+					</>
 				</Board.ScreenView>
 			);
 

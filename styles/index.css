@@ -2,20 +2,26 @@ body {
 	overflow: hidden;
 }
 
-#root {
+#__next {
 	display: flex;
 	justify-content: center;
+	flex-direction: column;
 	align-items: center;
-	min-height: 100vh;
-	margin-top: -50px;
 }
+
+#root {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+}
+
 .cell {
 	font-size: 4rem;
 	background: gray;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	min-height: 100px;
+	min-height: 68px;
 }
 
 .cell.closed {
@@ -35,18 +41,26 @@ body {
 	background: #db8f8f;
 }
 
+.container {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-self: center;
+}
+
 .board {
 	display: grid;
 	grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
-	grid-template-rows: 1fr 1fr;
-	width: 640px;
-	height: 480px;
+	grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr;
+	min-width: 350px;
+	min-height: 480px;
 	gap: 2px;
+	align-self: center;
 }
 
 .screen {
 	display: flex;
-	width: 640px;
+	width: 360px;
 	height: 480px;
 	align-items: center;
 	justify-content: center;
