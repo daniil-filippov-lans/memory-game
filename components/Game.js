@@ -13,7 +13,7 @@ const Status = {
 };
 
 const startGame = state => ({
-	board: Board.makeRandom(2, 2),
+	board: Board.makeRandom(5, 6),
 	status: Status.Running,
 	secondsLeft: 100,
 });
