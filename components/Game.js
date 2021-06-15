@@ -127,7 +127,7 @@ export default function View() {
 function StatusLineView({ status, secondsLeft }) {
 	return (
 		<div className="status-line">
-			<div>Открывай карточки&nbsp;🐇</div>
+			<div>Открывай карточки&nbsp;🐰</div>
 			<div>{status == Status.Running && `Секунды: ${secondsLeft}`}</div>
 		</div>
 	);
@@ -144,7 +144,7 @@ function ScreenBoxView({ status, board, onClickAt }) {
 					<div>
 						<h1>Игра на запоминание&nbsp;🐶</h1>
 						<p className="medium" style={{ textAlign: 'center' }}>
-							Нажми и сыграем&nbsp;⚽&nbsp;🥅!
+							Сыграем&nbsp;⚽&nbsp;🥅!
 						</p>
 					</div>
 				</Board.ScreenView>
@@ -155,7 +155,7 @@ function ScreenBoxView({ status, board, onClickAt }) {
 					<>
 						<h1>Ты мой чемпион&nbsp;💃!</h1>
 						<p className="medium" style={{ textAlign: 'center' }}>
-							Как насчет растяжки&nbsp;🧘?
+							Ещё разочек&nbsp;🎰&nbsp;🎰&nbsp;🎰?
 						</p>
 					</>
 				</Board.ScreenView>
@@ -166,10 +166,10 @@ function ScreenBoxView({ status, board, onClickAt }) {
 				<Board.ScreenView className="red">
 					<div>
 						<h1 style={{ paddingLeft: 10 }}>
-							Не сдавайся&nbsp;🤺!
+							Ты хорошо старался&nbsp;🧗!
 						</h1>
 						<p className="medium" style={{ textAlign: 'center' }}>
-							Попробуй обыграй бигбосса&nbsp;🐱‍👤
+							Попробуй обыграй Биг Босса&nbsp;🐱‍👤
 						</p>
 					</div>
 				</Board.ScreenView>
