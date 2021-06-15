@@ -13,7 +13,7 @@ const Status = {
 };
 
 const startGame = state => ({
-	board: Board.makeRandom(5, 6),
+	board: Board.makeRandom(2, 2),
 	status: Status.Running,
 	secondsLeft: 100,
 });
@@ -153,9 +153,9 @@ function ScreenBoxView({ status, board, onClickAt }) {
 			return (
 				<Board.ScreenView className="green">
 					<>
-						<h1>Победа твоя&nbsp;🎮!</h1>
+						<h1>Ты мой чемпион&nbsp;💃!</h1>
 						<p className="medium" style={{ textAlign: 'center' }}>
-							Сделаешь растяжку&nbsp;🧘?
+							Как насчет растяжки&nbsp;🧘?
 						</p>
 					</>
 				</Board.ScreenView>
