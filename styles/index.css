@@ -1,0 +1,81 @@
+body {
+	overflow: hidden;
+}
+
+#root {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	min-height: 100vh;
+	margin-top: -30px;
+}
+.cell {
+	font-size: 4rem;
+	background: gray;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 100px;
+}
+
+.cell.closed {
+	cursor: pointer;
+	background: darckgtay;
+}
+
+.cell.open {
+	background: #dcdcdc;
+}
+
+.cell.done {
+	background: #a8db8f;
+}
+
+.cell.failed {
+	background: #db8f8f;
+}
+
+.board {
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
+	grid-template-rows: 1fr 1fr;
+	width: 640px;
+	height: 480px;
+	gap: 2px;
+}
+
+.screen {
+	display: flex;
+	width: 640px;
+	height: 480px;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+}
+
+.screen.green {
+	background-color: #a8db8f;
+}
+
+.screen.gray {
+	background-color: #dcdcdc;
+}
+
+.screen.red {
+	background-color: #db8f8f;
+}
+
+.screen h1 {
+	font-size: 3rem;
+}
+
+.status-line {
+	color: gray;
+	display: flex;
+	justify-content: space-between;
+	font-size: 1.5rem;
+}
+
+.timer {
+	margin-bottom: 1rem;
+}
