@@ -13,9 +13,9 @@ const Status = {
 };
 
 const startGame = state => ({
-	board: Board.makeRandom(6, 3),
+	board: Board.makeRandom(5, 6),
 	status: Status.Running,
-	secondsLeft: 60,
+	secondsLeft: 100,
 });
 
 const openCell = R.curry((i, state) => ({
@@ -127,8 +127,9 @@ export default function View() {
 function StatusLineView({ status, secondsLeft }) {
 	return (
 		<div className="status-line">
+			<div>Открывай карточки&nbsp;🐰</div>
 			<div>
-				{status == Status.Running && `Seconds left: ${secondsLeft}`}
+				{status == Status.Running && `Секунд осталось: ${secondsLeft}`}
 			</div>
 		</div>
 	);
@@ -143,9 +144,9 @@ function ScreenBoxView({ status, board, onClickAt }) {
 			return (
 				<Board.ScreenView className="gray">
 					<div>
-						<h1>Memory Game</h1>
-						<p className="small" style={{ textAlign: 'center' }}>
-							Click anywahere to start!
+						<h1>Игра на запоминание&nbsp;🤓</h1>
+						<p className="medium" style={{ textAlign: 'center' }}>
+							Нажми и сыграем&nbsp;😎👍!
 						</p>
 					</div>
 				</Board.ScreenView>
@@ -154,9 +155,11 @@ function ScreenBoxView({ status, board, onClickAt }) {
 			return (
 				<Board.ScreenView className="green">
 					<div>
-						<h1>Victory!</h1>
-						<p className="small" style={{ textAlign: 'center' }}>
-							Click anywahere to try again!
+						<h1>
+							Поздравляю, Солнце&nbsp;☀️, ты победила&nbsp;🏆🏅🥇!
+						</h1>
+						<p className="medium" style={{ textAlign: 'center' }}>
+							Cыграем ещё&nbsp;🎰🎰🎰?
 						</p>
 					</div>
 				</Board.ScreenView>
@@ -166,9 +169,11 @@ function ScreenBoxView({ status, board, onClickAt }) {
 			return (
 				<Board.ScreenView className="red">
 					<div>
-						<h1>Defeat!</h1>
-						<p className="small" style={{ textAlign: 'center' }}>
-							Click anywahere to try again!
+						<h1 style={{ paddingLeft: 10 }}>
+							Ты хорошо старалась&nbsp;🧗!
+						</h1>
+						<p className="medium" style={{ textAlign: 'center' }}>
+							Кликни, сыграем ещё&nbsp;🥉
 						</p>
 					</div>
 				</Board.ScreenView>

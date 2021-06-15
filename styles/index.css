@@ -7,7 +7,7 @@ body {
 	justify-content: center;
 	align-items: center;
 	min-height: 100vh;
-	margin-top: -30px;
+	margin-top: -50px;
 }
 .cell {
 	font-size: 4rem;
@@ -37,7 +37,7 @@ body {
 
 .board {
 	display: grid;
-	grid-template-columns: 1fr 1fr 1fr;
+	grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
 	grid-template-rows: 1fr 1fr;
 	width: 640px;
 	height: 480px;
@@ -68,10 +68,14 @@ body {
 .screen h1 {
 	font-size: 3rem;
 }
+.screen p {
+	font-size: 1.4rem;
+}
 
 .status-line {
 	color: gray;
 	display: flex;
+	padding-bottom: 10px;
 	justify-content: space-between;
 	font-size: 1.5rem;
 }
