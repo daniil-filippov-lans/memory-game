@@ -126,10 +126,25 @@ export default function View() {
 
 function StatusLineView({ status, secondsLeft }) {
 	return (
-		<div className="status-line">
-			<div>Открывай карточки&nbsp;🐰</div>
-			<div>{status == Status.Running && `Секунды: ${secondsLeft}`}</div>
-		</div>
+		<>
+			<div className="status-line">
+				<div>Открывай карточки&nbsp;🐰</div>
+				<div>
+					{status == Status.Running && `Секунды: ${secondsLeft}`}
+				</div>
+			</div>
+			<style jsx>
+				{`
+					.status-line {
+						color: gray;
+						display: flex;
+						padding-bottom: 10px;
+						justify-content: space-between;
+						font-size: 1.5rem;
+					}
+				`}
+			</style>
+		</>
 	);
 }
 
@@ -140,7 +155,7 @@ function ScreenBoxView({ status, board, onClickAt }) {
 
 		case Status.Stopped:
 			return (
-				<Board.ScreenView className="gray">
+				<Board.ScreenView background={statusToBackground(status)}>
 					<div>
 						<h1>Игра на запоминание&nbsp;🐶</h1>
 						<p className="medium" style={{ textAlign: 'center' }}>
@@ -151,7 +166,7 @@ function ScreenBoxView({ status, board, onClickAt }) {
 			);
 		case Status.Won:
 			return (
-				<Board.ScreenView className="green">
+				<Board.ScreenView background={statusToBackground(status)}>
 					<>
 						<h1>Ты мой чемпион&nbsp;💃!</h1>
 						<p className="medium" style={{ textAlign: 'center' }}>
@@ -163,16 +178,25 @@ function ScreenBoxView({ status, board, onClickAt }) {
 
 		case Status.Lost:
 			return (
-				<Board.ScreenView className="red">
+				<Board.ScreenView background={statusToBackground(status)}>
 					<div>
-						<h1 style={{ paddingLeft: 10 }}>
-							Ты хорошо старался&nbsp;🧗!
-						</h1>
+						<h1>Ты хорошо старался&nbsp;🧗!</h1>
 						<p className="medium" style={{ textAlign: 'center' }}>
 							Попробуй обыграй Биг Босса&nbsp;🐱‍👤
 						</p>
 					</div>
 				</Board.ScreenView>
 			);
+	}
+}
+
+function statusToBackground(status) {
+	switch (status) {
+		case Status.Won:
+			return '#a8db8f';
+		case Status.Lost:
+			return '#db8f8f';
+		default:
+			return '#dcdcdc';
 	}
 }
