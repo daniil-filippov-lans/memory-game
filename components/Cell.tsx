@@ -6,26 +6,39 @@ import React from 'react';
 // 		status: Status.Open
 //}
 
-export const Status = {
-	Open: 'Open',
-	Closed: 'Closed',
-	Done: 'Done',
-	Failed: 'Failed',
+export enum Status {
+	Open,
+	Closed,
+	Done,
+	Failed,
+}
+
+export type Cell = {
+	symbol: string;
+	status: Status;
 };
 
-export const isOpen = cell => cell.status == Status.Open;
+export type PredFn = (cell: Cell) => boolean;
 
-export const isClosed = cell => cell.status == Status.Closed;
+export const isOpen = (cell: Cell): boolean => cell.status == Status.Open;
 
-export const isDone = cell => cell.status == Status.Done;
+export const isClosed = (cell: Cell): boolean => cell.status == Status.Closed;
 
-export const isFailed = cell => cell.status == Status.Failed;
+export const isDone = (cell: Cell): boolean => cell.status == Status.Done;
 
-export const isBlocking = cell => isOpen(cell) || isFailed(cell);
+export const isFailed = (cell: Cell): boolean => cell.status == Status.Failed;
+
+export const isBlocking = (cell: Cell): boolean =>
+	isOpen(cell) || isFailed(cell);
 
 // VIEW ====================================================
 
-export function View({ cell, onClick }) {
+type cellViewProps = {
+	cell: Cell;
+	onClick: (event: React.MouseEvent) => void;
+};
+
+export const cellView: React.FC<cellViewProps> = ({ cell, onClick }) => {
 	let { status, symbol } = cell;
 	return (
 		<div className={'cell'} onClick={onClick}>
@@ -44,9 +57,9 @@ export function View({ cell, onClick }) {
 			`}</style>
 		</div>
 	);
-}
+};
 
-function statusToBackground(status) {
+function statusToBackground(status: Status) {
 	switch (status) {
 		case Status.Closed:
 			return 'darkgray';
