@@ -3,6 +3,8 @@ import * as Cell from './Cell';
 import * as Board from './Board';
 import * as R from 'rambda';
 
+import { Director, WordBuilder, GameBoard } from '../lib/builder';
+
 // LOGIC =======================================================
 
 export enum Status {
@@ -13,52 +15,51 @@ export enum Status {
 }
 
 export type State = {
-	board: Board.Board;
 	secondsLeft: number;
 	status: Status;
+	gameConfig: GameBoard;
 };
 
-const size = { width: 6, height: 6 };
-type sizeType = {
-	width: number;
-	height: number;
-};
+const wordBuilder = new WordBuilder();
+const director = new Director(wordBuilder);
+
+let gameConf = director.createHighGameBoard();
 
 const startGame = (): State => ({
-	board: Board.makeRandom(size.width, size.height),
 	status: Status.Running,
 	secondsLeft: 100,
+	gameConfig: gameConf,
 });
 
 const openCell =
 	(i: number) =>
 	(state: State): State => ({
 		...state,
-		board: Board.setStatusAt(i)(Cell.Status.Open)(state.board),
+		gameConfig: { ...state.gameConfig, board: Board.setStatusAt(i)(Cell.Status.Open)(state.gameConfig.board)},
 	});
 
 const canOpenCell =
 	(i: number) =>
 	(state: State): boolean =>
-		Board.canOpenAt(i)(state.board);
+		Board.canOpenAt(i)(state.gameConfig.board);
 
 const succeedStep = (state: State): State => ({
 	...state,
-	board: Board.setStatusesBy(Cell.isOpen)(Cell.Status.Done)(state.board),
+	gameConfig: {...state.gameConfig , board: Board.setStatusesBy(Cell.isOpen)(Cell.Status.Done)(state.gameConfig.board)},
 });
 
 const failStep1 = (state: State): State => ({
 	...state,
-	board: Board.setStatusesBy(Cell.isOpen)(Cell.Status.Failed)(state.board),
+	gameConfig: {...state.gameConfig, board: Board.setStatusesBy(Cell.isOpen)(Cell.Status.Failed)(state.gameConfig.board)},
 });
 
 const failStep2 = (state: State): State => ({
 	...state,
-	board: Board.setStatusesBy(Cell.isFailed)(Cell.Status.Closed)(state.board),
+	gameConfig: {...state.gameConfig, board: Board.setStatusesBy(Cell.isFailed)(Cell.Status.Closed)(state.gameConfig.board)},
 });
 
 const hasWinningCond = (state: State): boolean =>
-	R.filter(Cell.isDone, state.board).length == state.board.length;
+	R.filter(Cell.isDone, state.gameConfig.board).length == state.gameConfig.board.length;
 
 const hasLosingCond = (state: State): boolean => !state.secondsLeft;
 
@@ -74,12 +75,14 @@ const nextSecond = (state: State): State => ({
 // VIEW ===================================================
 
 const GameView: React.FC = () => {
+	
 	const [state, setState] = useState<State>({
 		...startGame(),
 		status: Status.Stopped,
 	});
 
-	const { board, status, secondsLeft } = state;
+	const { status, secondsLeft, gameConfig } = state;
+	const { board } = state.gameConfig;
 
 	const handleStartingClick = () => {
 		if (status != Status.Running) {
@@ -134,11 +137,10 @@ const GameView: React.FC = () => {
 
 	return (
 		<div className="container" onClick={handleStartingClick}>
-			<StatusLineView status={status} secondsLeft={secondsLeft} />
+			<StatusLineView status={status} secondsLeft={secondsLeft}/>
 			<ScreenBoxView
 				status={status}
-				board={board}
-				size={size}
+				gameConfig={gameConfig}
 				onClickAt={handleRunningClick}
 			/>
 		</div>
@@ -176,23 +178,20 @@ const StatusLineView: React.FC<StatusLineProps> = ({ status, secondsLeft }) => {
 
 type ScreenBoxViewProps = {
 	status: Status;
-	board: Board.Board;
 	onClickAt: (i: number) => void;
-	size: sizeType;
 };
 
 const ScreenBoxView: React.FC<ScreenBoxViewProps> = ({
 	status,
-	board,
 	onClickAt,
-	size,
+	gameConfig,
 }) => {
 	switch (status) {
 		case Status.Running:
 			return (
 				<Board.BoardView
-					board={board}
-					size={size}
+					board={gameConfig.board}
+					size={gameConfig.size}
 					onClickAt={onClickAt}
 				/>
 			);
