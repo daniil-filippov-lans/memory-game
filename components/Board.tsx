@@ -9,50 +9,62 @@ import * as L from '../lib/index';
 
 export type Board = Cell.Cell[];
 
-export const getStatusAt = (i: number) => (board: Board) => {
-	return R.view(R.lensPath(`${i}.status`), board);
-};
+export const getStatusAt =
+	(i: number) =>
+	(board: Board): Cell.Status =>
+		R.view(R.lensPath(`${i}.status`), board);
 
 export const setStatusAt =
-	(i: number) => (status: Cell.Status) => (board: Board) => {
-		// 1. manual nesting
-		// 2. immer
-		// 3. lensimg
-		// return { ...board, [i]: { ...board[i], status } };
+	(i: number) =>
+	(status: Cell.Status) =>
+	(board: Board): Board =>
+		R.set(R.lensPath(`${i}.status`), status, board);
 
-		return R.set(R.lensPath(`${i}.status`), status, board);
-	};
+export const getStatusesBy =
+	(predFn: Cell.PredFn) =>
+	(board: Board): Cell.Status[] =>
+		[
+			...R.chain(
+				(cell: Cell.Cell) => (predFn(cell) ? [cell.status] : []),
+				board
+			),
+		];
 
 export const setStatusesBy =
-	(predFn: Cell.PredFn) => (status: Cell.Status) => (board: Board) => {
-		return R.map(
-			cell => (predFn(cell) ? { ...cell, status } : cell),
-			board
-		);
-	};
+	(predFn: Cell.PredFn) =>
+	(status: Cell.Status) =>
+	(board: Board): Board =>
+		[
+			...R.map(
+				(cell: Cell.Cell) =>
+					predFn(cell) ? { ...cell, status } : cell,
+				board
+			),
+		];
 
-export const getStatusesBy = (predFn: Cell.PredFn) => (board: Board) => {
-	return R.chain(cell => (predFn(cell) ? [cell.status] : []), board);
-};
+export const getSymbolsBy =
+	(predFn: Cell.PredFn) =>
+	(board: Board): string[] =>
+		[
+			...R.chain(
+				(cell: Cell.Cell) => (predFn(cell) ? [cell.symbol] : []),
+				board
+			),
+		];
 
-export const getSymbolsBy = (predFn: Cell.PredFn) => (board: Board) => {
-	return R.chain(cell => (predFn(cell) ? [cell.symbol] : []), board);
-};
-
-export const canOpenAt = (i: number) => (board: Board) => {
-	return (
+export const canOpenAt =
+	(i: number) =>
+	(board: Board): boolean =>
 		i < board.length &&
 		Cell.isClosed(board[i]) &&
-		getStatusesBy(Cell.isBlocking)(board).length < 2
-	);
-};
+		getStatusesBy(Cell.isBlocking)(board).length < 2;
 
-export const areOpensEqual = (board: Board) => {
+export const areOpensEqual = (board: Board): boolean => {
 	const openSymbols = getSymbolsBy(Cell.isOpen)(board);
 	return openSymbols.length >= 2 && L.allEquals(openSymbols);
 };
 
-export const areOpensDifferent = (board: Board) => {
+export const areOpensDifferent = (board: Board): boolean => {
 	const openSymbols = getSymbolsBy(Cell.isOpen)(board);
 	return openSymbols.length >= 2 && !L.allEquals(openSymbols);
 };

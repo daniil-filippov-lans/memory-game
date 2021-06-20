@@ -59,7 +59,7 @@ export const cellView: React.FC<cellViewProps> = ({ cell, onClick }) => {
 	);
 };
 
-function statusToBackground(status: Status) {
+function statusToBackground(status: Status): string {
 	switch (status) {
 		case Status.Closed:
 			return 'darkgray';

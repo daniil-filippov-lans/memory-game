@@ -5,79 +5,91 @@ import * as R from 'rambda';
 
 // LOGIC =======================================================
 
-const Status = {
-	Stopped: 'Stopped',
-	Running: 'Running',
-	Won: 'Won',
-	Lost: 'Lost',
+export enum Status {
+	Stopped,
+	Running,
+	Won,
+	Lost,
+}
+
+export type State = {
+	board: Board.Board;
+	secondsLeft: number;
+	status: Status;
 };
 
-const startGame = state => ({
+const startGame = (): State => ({
 	board: Board.makeRandom(5, 6),
 	status: Status.Running,
 	secondsLeft: 100,
 });
 
-const openCell = R.curry((i, state) => ({
-	...state,
-	board: Board.setStatusAt(i, Cell.Status.Open, state.board),
-}));
+const openCell =
+	(i: number) =>
+	(state: State): State => ({
+		...state,
+		board: Board.setStatusAt(i)(Cell.Status.Open)(state.board),
+	});
 
-const canOpenCell = R.curry((i, state) => {
-	return Board.canOpenAt(i, state.board);
+const canOpenCell =
+	(i: number) =>
+	(state: State): boolean =>
+		Board.canOpenAt(i)(state.board);
+
+const succeedStep = (state: State): State => ({
+	...state,
+	board: Board.setStatusesBy(Cell.isOpen)(Cell.Status.Done)(state.board),
 });
 
-const succeedStep = state => ({
+const failStep1 = (state: State): State => ({
 	...state,
-	board: Board.setStatusesBy(Cell.isOpen, Cell.Status.Done, state.board),
+	board: Board.setStatusesBy(Cell.isOpen)(Cell.Status.Failed)(state.board),
 });
 
-const failStep1 = state => ({
+const failStep2 = (state: State): State => ({
 	...state,
-	board: Board.setStatusesBy(Cell.isOpen, Cell.Status.Failed, state.board),
+	board: Board.setStatusesBy(Cell.isFailed)(Cell.Status.Closed)(state.board),
 });
 
-const failStep2 = state => ({
-	...state,
-	board: Board.setStatusesBy(Cell.isFailed, Cell.Status.Closed, state.board),
-});
-
-const hasWinningCond = state =>
+const hasWinningCond = (state: State): boolean =>
 	R.filter(Cell.isDone, state.board).length == state.board.length;
 
-const hasLosingCond = state => !state.secondsLeft;
+const hasLosingCond = (state: State): boolean => !state.secondsLeft;
 
-const setStatus = R.curry((status, state) => ({ ...state, status }));
+const setStatus =
+	(status: Status) =>
+	(state: State): State => ({ ...state, status });
 
-const nextSecond = state => ({
+const nextSecond = (state: State): State => ({
 	...state,
 	secondsLeft: Math.max(state.secondsLeft - 1, 0),
 });
 
 // VIEW ===================================================
 
-export default function View() {
-	const [state, setState] = useState({
+const GameView: React.FC = () => {
+	const [state, setState] = useState<State>({
 		...startGame(),
 		status: Status.Stopped,
 	});
+
 	const { board, status, secondsLeft } = state;
 
-	function handleStartingClick(i) {
+	const handleStartingClick = () => {
 		if (status != Status.Running) {
 			setState(startGame);
 		}
-	}
+	};
 
-	function handleRunningClick(i) {
-		if (status == Status.Running && canOpenCell(i, state)) {
+	const handleRunningClick = (i: number) => {
+		if (status == Status.Running && canOpenCell(i)(state)) {
 			setState(openCell(i));
 		}
-	}
+	};
 
 	// Wining / Losing conditions
 	useEffect(() => {
-		if (status == Status.Running) {
+		if (state.status == Status.Running) {
 			if (hasWinningCond(state)) {
 				return setState(setStatus(Status.Won));
 			} else if (hasLosingCond(state)) {
@@ -88,19 +100,21 @@ export default function View() {
 
 	// Board handling
 	useEffect(() => {
-		if (Board.areOpensEqual(board)) {
-			setState(succeedStep);
-		} else if (Board.areOpensDifferent(board)) {
-			setState(failStep1);
-			setTimeout(() => {
-				setState(failStep2);
-			}, 500);
+		if (status == Status.Running) {
+			if (Board.areOpensEqual(board)) {
+				setState(succeedStep);
+			} else if (Board.areOpensDifferent(board)) {
+				setState(failStep1);
+				setTimeout(() => {
+					setState(failStep2);
+				}, 500);
+			}
 		}
-	}, [board]);
+	}, [board, status]);
 
 	// Timer handling
 	useEffect(() => {
-		let timer = null;
+		let timer: ReturnType<typeof setInterval> | undefined = undefined;
 		if (status == Status.Running && !timer) {
 			timer = setInterval(() => {
 				setState(nextSecond);
@@ -108,7 +122,7 @@ export default function View() {
 		}
 
 		return () => {
-			clearInterval(timer);
+			timer ? clearInterval(timer) : null;
 		};
 	}, [status]);
 
@@ -122,9 +136,14 @@ export default function View() {
 			/>
 		</div>
 	);
-}
+};
 
-function StatusLineView({ status, secondsLeft }) {
+type StatusLineProps = {
+	status: Status;
+	secondsLeft: number;
+};
+
+const StatusLineView: React.FC<StatusLineProps> = ({ status, secondsLeft }) => {
 	return (
 		<>
 			<div className="status-line">
@@ -146,9 +165,19 @@ function StatusLineView({ status, secondsLeft }) {
 			</style>
 		</>
 	);
-}
+};
 
-function ScreenBoxView({ status, board, onClickAt }) {
+type ScreenBoxViewProps = {
+	status: Status;
+	board: Board.Board;
+	onClickAt: (i: number) => void;
+};
+
+const ScreenBoxView: React.FC<ScreenBoxViewProps> = ({
+	status,
+	board,
+	onClickAt,
+}) => {
 	switch (status) {
 		case Status.Running:
 			return <Board.BoardView board={board} onClickAt={onClickAt} />;
@@ -157,7 +186,9 @@ function ScreenBoxView({ status, board, onClickAt }) {
 			return (
 				<Board.ScreenView background={statusToBackground(status)}>
 					<div>
-						<h1>Игра на запоминание&nbsp;🐶</h1>
+						<h1 style={{ paddingLeft: 32 }}>
+							Игра на запоминание&nbsp;🐶
+						</h1>
 						<p className="medium" style={{ textAlign: 'center' }}>
 							Сыграем&nbsp;⚽&nbsp;🥅!
 						</p>
@@ -167,12 +198,14 @@ function ScreenBoxView({ status, board, onClickAt }) {
 		case Status.Won:
 			return (
 				<Board.ScreenView background={statusToBackground(status)}>
-					<>
-						<h1>Ты мой чемпион&nbsp;💃!</h1>
+					<div>
+						<h1 style={{ paddingLeft: 32 }}>
+							Ты мой чемпион&nbsp;💃!
+						</h1>
 						<p className="medium" style={{ textAlign: 'center' }}>
 							Ещё разочек&nbsp;🎰&nbsp;🎰&nbsp;🎰?
 						</p>
-					</>
+					</div>
 				</Board.ScreenView>
 			);
 
@@ -180,7 +213,9 @@ function ScreenBoxView({ status, board, onClickAt }) {
 			return (
 				<Board.ScreenView background={statusToBackground(status)}>
 					<div>
-						<h1>Ты хорошо старался&nbsp;🧗!</h1>
+						<h1 style={{ paddingLeft: 32 }}>
+							Ты хорошо старался&nbsp;🧗!
+						</h1>
 						<p className="medium" style={{ textAlign: 'center' }}>
 							Попробуй обыграй Биг Босса&nbsp;🐱‍👤
 						</p>
@@ -188,9 +223,9 @@ function ScreenBoxView({ status, board, onClickAt }) {
 				</Board.ScreenView>
 			);
 	}
-}
+};
 
-function statusToBackground(status) {
+function statusToBackground(status: Status): string {
 	switch (status) {
 		case Status.Won:
 			return '#a8db8f';
@@ -200,3 +235,5 @@ function statusToBackground(status) {
 			return '#dcdcdc';
 	}
 }
+
+export default GameView;
