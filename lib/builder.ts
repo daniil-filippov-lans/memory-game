@@ -19,7 +19,7 @@ interface Builder {
 }
 
 export class EmojiBuilder implements Builder {
-	private gameBoard: GameBoard;
+	private gameBoard: GameBoard = { board: [], size: { width: 0, height: 0 } };
 
 	constructor() {
 		this.reset();
@@ -48,7 +48,7 @@ export class EmojiBuilder implements Builder {
 }
 
 export class WordBuilder implements Builder {
-	private gameBoard: GameBoard;
+	private gameBoard: GameBoard = { board: [], size: { width: 0, height: 0 } };
 
 	constructor() {
 		this.reset();
