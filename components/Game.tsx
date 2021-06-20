@@ -23,7 +23,7 @@ export type State = {
 const wordBuilder = new WordBuilder();
 const director = new Director(wordBuilder);
 
-let gameConf = director.createHighGameBoard();
+let gameConf = director.createMedGameBoard();
 
 const startGame = (): State => ({
 	status: Status.Running,
@@ -35,7 +35,12 @@ const openCell =
 	(i: number) =>
 	(state: State): State => ({
 		...state,
-		gameConfig: { ...state.gameConfig, board: Board.setStatusAt(i)(Cell.Status.Open)(state.gameConfig.board)},
+		gameConfig: {
+			...state.gameConfig,
+			board: Board.setStatusAt(i)(Cell.Status.Open)(
+				state.gameConfig.board
+			),
+		},
 	});
 
 const canOpenCell =
@@ -45,21 +50,37 @@ const canOpenCell =
 
 const succeedStep = (state: State): State => ({
 	...state,
-	gameConfig: {...state.gameConfig , board: Board.setStatusesBy(Cell.isOpen)(Cell.Status.Done)(state.gameConfig.board)},
+	gameConfig: {
+		...state.gameConfig,
+		board: Board.setStatusesBy(Cell.isOpen)(Cell.Status.Done)(
+			state.gameConfig.board
+		),
+	},
 });
 
 const failStep1 = (state: State): State => ({
 	...state,
-	gameConfig: {...state.gameConfig, board: Board.setStatusesBy(Cell.isOpen)(Cell.Status.Failed)(state.gameConfig.board)},
+	gameConfig: {
+		...state.gameConfig,
+		board: Board.setStatusesBy(Cell.isOpen)(Cell.Status.Failed)(
+			state.gameConfig.board
+		),
+	},
 });
 
 const failStep2 = (state: State): State => ({
 	...state,
-	gameConfig: {...state.gameConfig, board: Board.setStatusesBy(Cell.isFailed)(Cell.Status.Closed)(state.gameConfig.board)},
+	gameConfig: {
+		...state.gameConfig,
+		board: Board.setStatusesBy(Cell.isFailed)(Cell.Status.Closed)(
+			state.gameConfig.board
+		),
+	},
 });
 
 const hasWinningCond = (state: State): boolean =>
-	R.filter(Cell.isDone, state.gameConfig.board).length == state.gameConfig.board.length;
+	R.filter(Cell.isDone, state.gameConfig.board).length ==
+	state.gameConfig.board.length;
 
 const hasLosingCond = (state: State): boolean => !state.secondsLeft;
 
@@ -75,7 +96,6 @@ const nextSecond = (state: State): State => ({
 // VIEW ===================================================
 
 const GameView: React.FC = () => {
-	
 	const [state, setState] = useState<State>({
 		...startGame(),
 		status: Status.Stopped,
@@ -137,7 +157,7 @@ const GameView: React.FC = () => {
 
 	return (
 		<div className="container" onClick={handleStartingClick}>
-			<StatusLineView status={status} secondsLeft={secondsLeft}/>
+			<StatusLineView status={status} secondsLeft={secondsLeft} />
 			<ScreenBoxView
 				status={status}
 				gameConfig={gameConfig}
