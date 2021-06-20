@@ -179,6 +179,7 @@ const StatusLineView: React.FC<StatusLineProps> = ({ status, secondsLeft }) => {
 type ScreenBoxViewProps = {
 	status: Status;
 	onClickAt: (i: number) => void;
+	gameConfig: GameBoard;
 };
 
 const ScreenBoxView: React.FC<ScreenBoxViewProps> = ({
