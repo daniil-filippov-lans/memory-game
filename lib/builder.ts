@@ -24,6 +24,7 @@ export class EmojiBuilder implements Builder {
 	constructor() {
 		this.reset();
 	}
+
 	public reset(): void {
 		this.gameBoard = { board: [], size: { width: 0, height: 0 } };
 	}
@@ -33,6 +34,10 @@ export class EmojiBuilder implements Builder {
 			width,
 			height,
 		};
+	}
+
+	setCells(): void {
+
 	}
 
 	public getBoard(): GameBoard {
@@ -84,12 +89,29 @@ export class WordBuilder implements Builder {
 export class Director {
 	private builder: Builder;
 
+	constructor(builder: Builder) {
+		this.builder = builder;
+	}
+
 	public setBuilder(builder: Builder): void {
 		this.builder = builder;
 	}
 
-	public buildGameBoard(width: number, height: number): void {
-		this.builder.setSize(width, height);
+	public createLowGameBoard(): any {
+		this.builder.setSize(4, 5);
 		this.builder.setCells();
+		return this.builder.getBoard();
+	}
+
+	public createMedGameBoard(): any {
+		this.builder.setSize(5, 6);
+		this.builder.setCells();
+		return this.builder.getBoard();
+	}
+
+	public createHighGameBoard(): any {
+		this.builder.setSize(6, 7);
+		this.builder.setCells();
+		return this.builder.getBoard();
 	}
 }
