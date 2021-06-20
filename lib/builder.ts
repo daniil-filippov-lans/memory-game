@@ -19,11 +19,12 @@ interface Builder {
 }
 
 export class EmojiBuilder implements Builder {
-	private gameBoard: GameBoard;
+	private gameBoard: GameBoard = { board: [], size: { width: 0, height: 0 } };
 
 	constructor() {
 		this.reset();
 	}
+
 	public reset(): void {
 		this.gameBoard = { board: [], size: { width: 0, height: 0 } };
 	}
@@ -35,6 +36,10 @@ export class EmojiBuilder implements Builder {
 		};
 	}
 
+	setCells(): void {
+
+	}
+
 	public getBoard(): GameBoard {
 		const result = this.gameBoard;
 		this.reset();
@@ -43,7 +48,7 @@ export class EmojiBuilder implements Builder {
 }
 
 export class WordBuilder implements Builder {
-	private gameBoard: GameBoard;
+	private gameBoard: GameBoard = { board: [], size: { width: 0, height: 0 } };
 
 	constructor() {
 		this.reset();
@@ -84,12 +89,29 @@ export class WordBuilder implements Builder {
 export class Director {
 	private builder: Builder;
 
+	constructor(builder: Builder) {
+		this.builder = builder;
+	}
+
 	public setBuilder(builder: Builder): void {
 		this.builder = builder;
 	}
 
-	public buildGameBoard(width: number, height: number): void {
-		this.builder.setSize(width, height);
+	public createLowGameBoard(): any {
+		this.builder.setSize(4, 5);
 		this.builder.setCells();
+		return this.builder.getBoard();
+	}
+
+	public createMedGameBoard(): any {
+		this.builder.setSize(5, 6);
+		this.builder.setCells();
+		return this.builder.getBoard();
+	}
+
+	public createHighGameBoard(): any {
+		this.builder.setSize(6, 7);
+		this.builder.setCells();
+		return this.builder.getBoard();
 	}
 }
