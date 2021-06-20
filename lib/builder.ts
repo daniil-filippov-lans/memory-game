@@ -4,6 +4,18 @@ import * as L from '../lib/index';
 import { Status } from '../components/Cell';
 import { Board } from '../components/Board';
 
+const emojiTable = [	
+	'😃',	'😄',	'😁',	'😱',	'😞',	'😓',	'😩',  	'🤬',	'😈',
+	'😆',	'😅',	'🤣',	'😂',	'🙂',	'🙃',	'😉',	'💀',	'🤡',
+	'😊',	'😇',	'🥰',	'😍',	'🤩',	'😘',	'😗',	'😚',  	'😥',
+	'😙',	'😋',	'😛',	'😜',	'🤪',	'😝',	'🤑',	'🤗',  	'😭',
+	'🤭',	'🤫',	'🤔',	'🤐',	'🤨',	'😐',	'😑',	'😶',	'😏',
+	'😒',	'🙄',	'😬',	'🤥',	'😌',	'😔',	'😪',	'🤤',	'😴',
+	'😷',	'🤒',	'🤕',	'🤢',	'🤮',	'🤧',	'🥵',	'🥶',	'🥴',
+	'😵',	'🤯',	'🤠',	'🥳',	'😎',	'🤓',	'🧐',	'😕',	'😟',
+	'🙁',	'😯',	'😲',	'😳',	'🥺',	'😦',	'😧',	'😨',	'😰',
+];
+
 export type GameBoard = {
 	board: Board;
 	size: {
@@ -37,7 +49,18 @@ export class EmojiBuilder implements Builder {
 	}
 
 	setCells(): void {
+		const { width: m, height: n } = this.gameBoard.size;
 
+		if ((m * n) / 2 > 26) throw new Error('too big');
+		if ((m * n) % 2) throw new Error('must be even');
+
+		this.gameBoard.board = R.pipe(
+			() => R.range(0, (m * n) / 2), // ["A", "B", "C"]
+			R.map((i: number) => emojiTable[i]),
+			R.chain(x => [x, x]),
+			L.shuffle,
+			R.map((symbol: string) => ({ symbol, status: Status.Closed }))
+		)() as Board;
 	}
 
 	public getBoard(): GameBoard {
