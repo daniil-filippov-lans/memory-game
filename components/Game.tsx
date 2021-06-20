@@ -18,8 +18,14 @@ export type State = {
 	status: Status;
 };
 
+const size = { width: 6, height: 6 };
+type sizeType = {
+	width: number;
+	height: number;
+};
+
 const startGame = (): State => ({
-	board: Board.makeRandom(5, 6),
+	board: Board.makeRandom(size.width, size.height),
 	status: Status.Running,
 	secondsLeft: 100,
 });
@@ -132,6 +138,7 @@ const GameView: React.FC = () => {
 			<ScreenBoxView
 				status={status}
 				board={board}
+				size={size}
 				onClickAt={handleRunningClick}
 			/>
 		</div>
@@ -171,16 +178,24 @@ type ScreenBoxViewProps = {
 	status: Status;
 	board: Board.Board;
 	onClickAt: (i: number) => void;
+	size: sizeType;
 };
 
 const ScreenBoxView: React.FC<ScreenBoxViewProps> = ({
 	status,
 	board,
 	onClickAt,
+	size,
 }) => {
 	switch (status) {
 		case Status.Running:
-			return <Board.BoardView board={board} onClickAt={onClickAt} />;
+			return (
+				<Board.BoardView
+					board={board}
+					size={size}
+					onClickAt={onClickAt}
+				/>
+			);
 
 		case Status.Stopped:
 			return (

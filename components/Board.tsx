@@ -89,8 +89,25 @@ export const makeRandom = (m: number, n: number): Board => {
 type BoardViewProps = {
 	board: Board;
 	onClickAt: (i: number) => void;
+	size: {
+		width: number;
+		height: number;
+	};
 };
-export const BoardView: React.FC<BoardViewProps> = ({ board, onClickAt }) => {
+export const BoardView: React.FC<BoardViewProps> = ({
+	board,
+	onClickAt,
+	size,
+}) => {
+	const gridLengthToString = (i: number): string => {
+		let res = '';
+		while (i > 0) {
+			res += ' 1fr';
+			i--;
+		}
+		return res;
+	};
+
 	return (
 		<>
 			<div className="board">
@@ -98,15 +115,15 @@ export const BoardView: React.FC<BoardViewProps> = ({ board, onClickAt }) => {
 					<Cell.cellView
 						key={i}
 						cell={cell}
-						onClick={_ => onClickAt(i)}
+						onClick={() => onClickAt(i)}
 					/>
 				))}
 			</div>
 			<style jsx>{`
 				.board {
 					display: grid;
-					grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
-					grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr;
+					grid-template-columns: ${gridLengthToString(size.width)};
+					grid-template-rows: ${gridLengthToString(size.height)};
 					min-width: 350px;
 					min-height: 480px;
 					gap: 2px;
