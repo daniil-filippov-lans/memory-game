@@ -21,8 +21,8 @@ export type State = {
 };
 
 const wordBuilder = new WordBuilder();
-const emojiBuilder = new EmojiBuilder()
-const director = new Director(wordBuilder);
+const emojiBuilder = new EmojiBuilder();
+const director = new Director(emojiBuilder);
 
 let gameConf = director.createMedGameBoard();
 
