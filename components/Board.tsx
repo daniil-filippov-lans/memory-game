@@ -65,11 +65,11 @@ export const areOpensEqual = (board: Board): boolean => {
 };
 
 export const areOpensDifferent = (board: Board): boolean => {
-	const openSymbols = getSymbolsBy(Cell.isOpen)(board);	
+	const openSymbols = getSymbolsBy(Cell.isOpen)(board);
 	return openSymbols.length >= 2 && !equalSymbols(openSymbols);
 };
 
-function equalSymbols(symbols: Array<string>) : boolean {
+function equalSymbols(symbols: Array<string>): boolean {
 	const firstCode = symbols[0].codePointAt(0);
 	const secondCode = symbols[1].codePointAt(0);
 
@@ -77,7 +77,10 @@ function equalSymbols(symbols: Array<string>) : boolean {
 		return false;
 	}
 
-	return parseInt(firstCode.toString(16), 16) === parseInt(secondCode.toString(16), 16) ? true : false;
+	return !!(
+		parseInt(firstCode.toString(16), 16) ===
+		parseInt(secondCode.toString(16), 16)
+	);
 }
 
 // VIEW ======================================================
