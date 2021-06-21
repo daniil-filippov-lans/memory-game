@@ -56,7 +56,7 @@ export class EmojiBuilder implements Builder {
 		if ((m * n) % 2) throw new Error('must be even');
 
 		this.gameBoard.board = R.pipe(
-			() => R.range(0, (m * n) / 2), // ["A", "B", "C"]
+			() => R.range(0, (m * n) / 2), // ['🦍', '🦊', '🐒', ...]
 			R.map((i: number) => emojiTable[i]),
 			R.chain(x => [x, x]),
 			L.shuffle,
