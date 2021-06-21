@@ -3,7 +3,7 @@ import * as Cell from './Cell';
 import * as Board from './Board';
 import * as R from 'rambda';
 
-import { Director, WordBuilder, GameBoard } from '../lib/builder';
+import { Director, WordBuilder, EmojiBuilder, GameBoard } from '../lib/builder';
 
 // LOGIC =======================================================
 
@@ -21,6 +21,7 @@ export type State = {
 };
 
 const wordBuilder = new WordBuilder();
+const emojiBuilder = new EmojiBuilder()
 const director = new Director(wordBuilder);
 
 let gameConf = director.createMedGameBoard();

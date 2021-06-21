@@ -61,28 +61,24 @@ export const canOpenAt =
 
 export const areOpensEqual = (board: Board): boolean => {
 	const openSymbols = getSymbolsBy(Cell.isOpen)(board);
-	return openSymbols.length >= 2 && L.allEquals(openSymbols);
+	return openSymbols.length >= 2 && equalSymbols(openSymbols);
 };
 
 export const areOpensDifferent = (board: Board): boolean => {
-	const openSymbols = getSymbolsBy(Cell.isOpen)(board);
-	return openSymbols.length >= 2 && !L.allEquals(openSymbols);
+	const openSymbols = getSymbolsBy(Cell.isOpen)(board);	
+	return openSymbols.length >= 2 && !equalSymbols(openSymbols);
 };
 
-const charCodeA = 'A'.charCodeAt(0);
+function equalSymbols(symbols: Array<string>) : boolean {
+	const firstCode = symbols[0].codePointAt(0);
+	const secondCode = symbols[1].codePointAt(0);
 
-export const makeRandom = (m: number, n: number): Board => {
-	if ((m * n) / 2 > 26) throw new Error('too big');
-	if ((m * n) % 2) throw new Error('must be even');
+	if (firstCode === undefined || secondCode === undefined) {
+		return false;
+	}
 
-	return R.pipe(
-		() => R.range(0, (m * n) / 2), // ["A", "B", "C"]
-		R.map((i: number) => String.fromCharCode(i + charCodeA)),
-		R.chain(x => [x, x]),
-		L.shuffle,
-		R.map((symbol: string) => ({ symbol, status: Cell.Status.Closed }))
-	)() as Board;
-};
+	return parseInt(firstCode.toString(16), 16) === parseInt(secondCode.toString(16), 16) ? true : false;
+}
 
 // VIEW ======================================================
 
