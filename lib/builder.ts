@@ -17,12 +17,14 @@ const emojiTable = [
 	'🏜️',	 '🏔️',	  '🌋',   '🏭',   '🎠',   '⛩️',   '✈️',   '🚁',   '🚧'
 ];
 
+export type size = {
+	width: number;
+	height: number;
+};
+
 export type GameBoard = {
 	board: Board;
-	size: {
-		width: number;
-		height: number;
-	};
+	size: size;
 };
 
 interface Builder {
@@ -121,19 +123,19 @@ export class Director {
 		this.builder = builder;
 	}
 
-	public createLowGameBoard(): any {
+	public createLowGameBoard(): GameBoard {
 		this.builder.setSize(4, 5);
 		this.builder.setCells();
 		return this.builder.getBoard();
 	}
 
-	public createMedGameBoard(): any {
+	public createMedGameBoard(): GameBoard {
 		this.builder.setSize(5, 6);
 		this.builder.setCells();
 		return this.builder.getBoard();
 	}
 
-	public createHighGameBoard(): any {
+	public createHighGameBoard(): GameBoard {
 		this.builder.setSize(6, 7);
 		this.builder.setCells();
 		return this.builder.getBoard();

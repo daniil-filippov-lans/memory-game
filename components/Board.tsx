@@ -2,6 +2,7 @@ import React from 'react';
 import * as R from 'rambda';
 import * as Cell from './Cell';
 import * as L from '../lib/index';
+import { size } from '../lib/builder';
 
 // LOGIC =====================================================
 // let cell1 = ...
@@ -88,10 +89,7 @@ function equalSymbols(symbols: Array<string>): boolean {
 type BoardViewProps = {
 	board: Board;
 	onClickAt: (i: number) => void;
-	size: {
-		width: number;
-		height: number;
-	};
+	size: size;
 };
 export const BoardView: React.FC<BoardViewProps> = ({
 	board,

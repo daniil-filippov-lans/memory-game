@@ -3,7 +3,13 @@ import * as Cell from './Cell';
 import * as Board from './Board';
 import * as R from 'rambda';
 
-import { Director, WordBuilder, EmojiBuilder, GameBoard } from '../lib/builder';
+import {
+	Director,
+	WordBuilder,
+	EmojiBuilder,
+	GameBoard,
+	size,
+} from '../lib/builder';
 
 // LOGIC =======================================================
 
@@ -271,5 +277,65 @@ function statusToBackground(status: Status): string {
 			return '#dcdcdc';
 	}
 }
+
+type SettingsScreenProps = {};
+
+type alphabet = 'emoji' | 'word';
+type complexity = 'easy' | 'medium' | 'hard';
+
+type configuration = {
+	complexity: complexity;
+	alphabet: alphabet;
+};
+
+export const SettingsScreen: React.FC<SettingsScreenProps> = () => {
+	const [configuration, setConfiguration] = useState<configuration>();
+
+	const setComplexity = (complexity: complexity) => {
+		setConfiguration({
+			...configuration,
+			complexity: complexity,
+		} as configuration);
+	};
+
+	const setAlphabet = (alphabet: alphabet) => {
+		setConfiguration({
+			...configuration,
+			alphabet: alphabet,
+		} as configuration);
+	};
+
+	return (
+		<>
+			<div className="settings">
+				<button className="block" onClick={() => setAlphabet('emoji')}>
+					🦍
+				</button>
+				<button className="block" onClick={() => setAlphabet('word')}>
+					A
+				</button>
+				<button className="block" onClick={() => setComplexity('easy')}>
+					Простенький
+				</button>
+				<button
+					className="block"
+					onClick={() => setComplexity('medium')}
+				>
+					Средний
+				</button>
+				<button className="block" onClick={() => setComplexity('hard')}>
+					Сложный
+				</button>
+
+				<button >поехали!</button>
+			</div>
+			<style jsx>{`
+				.settings {
+					display: grid;
+				}
+			`}</style>
+		</>
+	);
+};
 
 export default GameView;
