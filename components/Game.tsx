@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import * as Cell from './Cell';
 import * as Board from './Board';
 import * as R from 'rambda';
-
 import {
 	Director,
 	WordBuilder,
@@ -18,6 +17,7 @@ export enum Status {
 	Running,
 	Won,
 	Lost,
+	Settings,
 }
 
 export type State = {
@@ -123,6 +123,12 @@ const GameView: React.FC = () => {
 		}
 	};
 
+	const handleSettingsClick = (gameConfig: GameBoard) => {
+		if (status != Status.Settings) {
+			setState(prev => ({ ...prev, gameConfig }));
+		}
+	};
+
 	// Wining / Losing conditions
 	useEffect(() => {
 		if (state.status == Status.Running) {
@@ -169,6 +175,7 @@ const GameView: React.FC = () => {
 				status={status}
 				gameConfig={gameConfig}
 				onClickAt={handleRunningClick}
+				onSettings={handleSettingsClick}
 			/>
 		</div>
 	);
@@ -207,6 +214,7 @@ type ScreenBoxViewProps = {
 	status: Status;
 	onClickAt: (i: number) => void;
 	gameConfig: GameBoard;
+	onSettings: (gameConfig: GameBoard) => void;
 };
 
 const ScreenBoxView: React.FC<ScreenBoxViewProps> = ({
@@ -227,7 +235,7 @@ const ScreenBoxView: React.FC<ScreenBoxViewProps> = ({
 		case Status.Stopped:
 			return (
 				<Board.ScreenView background={statusToBackground(status)}>
-					<div>
+					<div className="screen">
 						<h1 style={{ paddingLeft: 32 }}>
 							Игра на запоминание&nbsp;🐶
 						</h1>
@@ -235,6 +243,7 @@ const ScreenBoxView: React.FC<ScreenBoxViewProps> = ({
 							Сыграем&nbsp;⚽&nbsp;🥅!
 						</p>
 					</div>
+					<ButtonSettings onSettings={} />
 				</Board.ScreenView>
 			);
 		case Status.Won:
@@ -264,7 +273,42 @@ const ScreenBoxView: React.FC<ScreenBoxViewProps> = ({
 					</div>
 				</Board.ScreenView>
 			);
+
+		case Status.Settings:
+			return (
+				<Board.ScreenView background={statusToBackground(status)}>
+					<SettingsScreen />
+				</Board.ScreenView>
+			);
 	}
+};
+
+type IButtonSettingsProps = { onSettings: () => void };
+
+const ButtonSettings: React.FC<IButtonSettingsProps> = ({ onSettings }) => {
+	return (
+		<>
+			<button
+				className="settingsButton"
+				onClick={e => {
+					e.stopPropagation();
+					onSettings();
+				}}
+			>
+				🛠️
+			</button>
+			<style jsx>{`
+				.settingsButton {
+					background: none;
+					position: absolute;
+					top: 40px;
+					font-size: 2rem;
+					right: 0px;
+					padding: 20px;
+				}
+			`}</style>
+		</>
+	);
 };
 
 function statusToBackground(status: Status): string {
@@ -327,7 +371,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = () => {
 					Сложный
 				</button>
 
-				<button >поехали!</button>
+				<button>поехали!</button>
 			</div>
 			<style jsx>{`
 				.settings {
