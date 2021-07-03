@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, FormEvent } from 'react';
 import * as Cell from './Cell';
 import * as Board from './Board';
 import * as R from 'rambda';
@@ -25,18 +25,6 @@ export type State = {
 	status: Status;
 	gameConfig: GameBoard;
 };
-
-const wordBuilder = new WordBuilder();
-const emojiBuilder = new EmojiBuilder();
-const director = new Director(emojiBuilder);
-
-let gameConf = director.createMedGameBoard();
-
-const startGame = (): State => ({
-	status: Status.Running,
-	secondsLeft: 100,
-	gameConfig: gameConf,
-});
 
 const openCell =
 	(i: number) =>
@@ -103,8 +91,15 @@ const nextSecond = (state: State): State => ({
 // VIEW ===================================================
 
 const GameView: React.FC = () => {
+	//Начальные настройки
+	let builder: WordBuilder | EmojiBuilder = new WordBuilder();
+	let director = new Director(builder);
+	let gameConf = director.createLowGameBoard();
+
+
 	const [state, setState] = useState<State>({
-		...startGame(),
+		secondsLeft: 100,
+		gameConfig: gameConf,
 		status: Status.Stopped,
 	});
 
@@ -113,7 +108,11 @@ const GameView: React.FC = () => {
 
 	const handleStartingClick = () => {
 		if (status != Status.Running) {
-			setState(startGame);
+			setState({
+				...state,
+				secondsLeft: 100,
+				status: Status.Running,
+			});
 		}
 	};
 
@@ -123,11 +122,42 @@ const GameView: React.FC = () => {
 		}
 	};
 
-	const handleSettingsClick = (gameConfig: GameBoard) => {
+	const handleSettingsClick = () => {
 		if (status != Status.Settings) {
-			setState(prev => ({ ...prev, gameConfig }));
+			setState(prev => ({ ...prev, status: Status.Settings}));
 		}
 	};
+
+	const applySettings = (configuration: configuration) => {
+		switch (configuration.alphabet) {
+			case 'emoji':
+				builder = new EmojiBuilder();
+				break;
+			case 'word':
+				builder = new WordBuilder();
+				break;
+		}
+
+		director.setBuilder(builder);
+
+		switch (configuration.complexity) {
+			case 'easy':
+				gameConf = director.createLowGameBoard();
+				break;
+			case 'medium':
+				gameConf = director.createMedGameBoard();
+				break;
+			case 'hard':
+				gameConf = director.createHighGameBoard();
+				break;
+		}
+
+		setState({
+			secondsLeft: 100,
+			status: Status.Running,
+			gameConfig: gameConf,
+		});
+	}
 
 	// Wining / Losing conditions
 	useEffect(() => {
@@ -176,6 +206,7 @@ const GameView: React.FC = () => {
 				gameConfig={gameConfig}
 				onClickAt={handleRunningClick}
 				onSettings={handleSettingsClick}
+				applySettings={applySettings}
 			/>
 		</div>
 	);
@@ -214,13 +245,16 @@ type ScreenBoxViewProps = {
 	status: Status;
 	onClickAt: (i: number) => void;
 	gameConfig: GameBoard;
-	onSettings: (gameConfig: GameBoard) => void;
+	onSettings: () => void;
+	applySettings: (configuration: configuration) => void;
 };
 
 const ScreenBoxView: React.FC<ScreenBoxViewProps> = ({
 	status,
 	onClickAt,
 	gameConfig,
+	onSettings,
+	applySettings
 }) => {
 	switch (status) {
 		case Status.Running:
@@ -243,7 +277,7 @@ const ScreenBoxView: React.FC<ScreenBoxViewProps> = ({
 							Сыграем&nbsp;⚽&nbsp;🥅!
 						</p>
 					</div>
-					<ButtonSettings onSettings={} />
+					<ButtonSettings onSettings={onSettings} />
 				</Board.ScreenView>
 			);
 		case Status.Won:
@@ -277,7 +311,7 @@ const ScreenBoxView: React.FC<ScreenBoxViewProps> = ({
 		case Status.Settings:
 			return (
 				<Board.ScreenView background={statusToBackground(status)}>
-					<SettingsScreen />
+					<SettingsScreen applySettings={applySettings}/>
 				</Board.ScreenView>
 			);
 	}
@@ -317,65 +351,77 @@ function statusToBackground(status: Status): string {
 			return '#a8db8f';
 		case Status.Lost:
 			return '#db8f8f';
+		case Status.Settings:
+			return '#ffc82d';
 		default:
 			return '#dcdcdc';
 	}
 }
 
-type SettingsScreenProps = {};
-
-type alphabet = 'emoji' | 'word';
-type complexity = 'easy' | 'medium' | 'hard';
-
-type configuration = {
-	complexity: complexity;
-	alphabet: alphabet;
+type SettingsScreenProps = {
+	applySettings: (configuration: configuration) => void;
 };
 
-export const SettingsScreen: React.FC<SettingsScreenProps> = () => {
-	const [configuration, setConfiguration] = useState<configuration>();
 
-	const setComplexity = (complexity: complexity) => {
+type configuration = {
+	complexity: string;
+	alphabet: string;
+};
+
+export const SettingsScreen: React.FC<SettingsScreenProps> = ({ applySettings }) => {
+	const [configuration, setConfiguration] = useState<configuration>({complexity: 'easy', alphabet: 'emoji'});
+
+	const setComplexity = (complexity: string) => {
 		setConfiguration({
 			...configuration,
 			complexity: complexity,
 		} as configuration);
 	};
 
-	const setAlphabet = (alphabet: alphabet) => {
+	const setAlphabet = (alphabet: string) => {
 		setConfiguration({
 			...configuration,
 			alphabet: alphabet,
 		} as configuration);
 	};
 
+	const handleSubmit = (e: FormEvent) => {
+		e.preventDefault();
+		applySettings(configuration);
+	}
+
 	return (
 		<>
-			<div className="settings">
-				<button className="block" onClick={() => setAlphabet('emoji')}>
-					🦍
-				</button>
-				<button className="block" onClick={() => setAlphabet('word')}>
-					A
-				</button>
-				<button className="block" onClick={() => setComplexity('easy')}>
-					Простенький
-				</button>
-				<button
-					className="block"
-					onClick={() => setComplexity('medium')}
-				>
-					Средний
-				</button>
-				<button className="block" onClick={() => setComplexity('hard')}>
-					Сложный
-				</button>
-
-				<button>поехали!</button>
+			<div className="settings" onClick={(e) => e.stopPropagation()}>
+				<form onSubmit={(e) => handleSubmit(e)} name="form">
+					<p>Уровень сложности</p>
+					<select name="complexity" id="complexity" onChange={(e) => setComplexity(e.target.value)}>
+						<option value="easy">Легкий</option>
+						<option value="medium">Средний</option>
+						<option value="hard">Тяжелый</option>
+					</select>
+					<p>Элементы</p>
+					<select name="alphabet" id="alphabet" onChange={(e) => setAlphabet(e.target.value)}>
+						<option value="word">Буквы</option>
+						<option value="emoji">Эмодзи</option>
+					</select>
+					<button type="submit">Принять</button>
+				</form>
 			</div>
 			<style jsx>{`
 				.settings {
-					display: grid;
+					width: 360px;
+					height: 480px;
+					position: relative;
+				}
+				.settings form {
+					width: 100%;
+					position: absolute;
+					top: 50%;
+					display: flex;
+					flex-direction: column;
+					padding: 10px;
+					transform: translateY(-50%);
 				}
 			`}</style>
 		</>
