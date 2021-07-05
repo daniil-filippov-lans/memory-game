@@ -53,6 +53,7 @@ export const cellView: React.FC<cellViewProps> = ({ cell, onClick }) => {
 					/* min-height: 68px; */
 					background: ${statusToBackground(status)};
 					cursor: ${status == Status.Closed ? 'pointer' : 'auto'};
+					user-select: none;   
 				}
 			`}</style>
 		</div>

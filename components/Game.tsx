@@ -93,10 +93,10 @@ const nextSecond = (state: State): State => ({
 
 const GameView: React.FC = () => {
 	//Начальные настройки
-	let builder: WordBuilder | EmojiBuilder = new WordBuilder();
+	let builder: WordBuilder | EmojiBuilder = new EmojiBuilder();
 	let director: Director = new Director(builder);
-	let boardConf: GameBoard = director.createLowGameBoard();
-	let settings: configuration = {complexity: 'easy', alphabet: 'word'};
+	let boardConf: GameBoard = director.createMedGameBoard();
+	let settings: configuration = {complexity: 'medium', alphabet: 'emoji'};
 
 
 	const [state, setState] = useState<State>({
@@ -111,11 +111,7 @@ const GameView: React.FC = () => {
 
 	const handleStartingClick = () => {
 		if (status != Status.Running) {
-			setState({
-				...state,
-				secondsLeft: 100,
-				status: Status.Running,
-			});
+			refreshField();
 		}
 	};
 
@@ -131,7 +127,9 @@ const GameView: React.FC = () => {
 		}
 	};
 
-	const handleExitClick = () => applySettings(state.settings);
+	const handleExitClick = () => {
+		setState({...state, status: Status.Stopped})
+	};
 
 	const applySettings = (configuration: configuration) => {
 		switch (configuration.alphabet) {
@@ -162,6 +160,38 @@ const GameView: React.FC = () => {
 			status: Status.Stopped,
 			boardConfig: boardConf,
 			settings: configuration
+		});
+	}
+
+	const refreshField = () => {
+		switch (state.settings.alphabet) {
+			case 'emoji':
+				builder = new EmojiBuilder();
+				break;
+			case 'word':
+				builder = new WordBuilder();
+				break;
+		}
+
+		director.setBuilder(builder);
+
+		switch (state.settings.complexity) {
+			case 'easy':
+				boardConf = director.createLowGameBoard();
+				break;
+			case 'medium':
+				boardConf = director.createMedGameBoard();
+				break;
+			case 'hard':
+				boardConf = director.createHighGameBoard();
+				break;
+		}
+
+		setState({
+			...state,
+			status: Status.Running,
+			secondsLeft: 100,
+			boardConfig: boardConf,
 		});
 	}
 
@@ -245,7 +275,7 @@ const StatusLineView: React.FC<StatusLineProps> = ({ status, secondsLeft, exitHa
 					.status-line button {
 						background: none;
 						padding: 0;
-						margin-right: 5px;
+						padding-right: 5px;
 					}
 					.seconds {
 						margin-left: auto;
@@ -384,20 +414,20 @@ type configuration = {
 };
 
 export const SettingsScreen: React.FC<SettingsScreenProps> = ({ applySettings }) => {
-	const [configuration, setConfiguration] = useState<configuration>({complexity: 'easy', alphabet: 'word'});
+	const [configuration, setConfiguration] = useState<configuration>({complexity: 'medium', alphabet: 'emoji'});
 
 	const setComplexity = (complexity: string) => {
-		setConfiguration({
-			...configuration,
+		setConfiguration(prev => ({
+			...prev,
 			complexity,
-		} as configuration);
+		} as configuration));
 	};
 
 	const setAlphabet = (alphabet: string) => {
-		setConfiguration({
+		setConfiguration(prev => ({
 			...configuration,
 			alphabet,
-		} as configuration);
+		} as configuration));
 	};
 
 	const handleSubmit = (e: FormEvent) => {
@@ -412,13 +442,13 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ applySettings })
 					<p>Уровень сложности</p>
 					<select name="complexity" id="complexity" onChange={(e) => setComplexity(e.target.value)}>
 						<option value="easy">Легкий</option>
-						<option value="medium">Средний</option>
+						<option value="medium" selected>Средний</option>
 						<option value="hard">Тяжелый</option>
 					</select>
 					<p>Элементы</p>
 					<select name="alphabet" id="alphabet" onChange={(e) => setAlphabet(e.target.value)}>
 						<option value="word">Буквы</option>
-						<option value="emoji">Эмодзи</option>
+						<option value="emoji" selected>Эмодзи</option>
 					</select>
 					<button type="submit">Принять</button>
 				</form>

@@ -17,6 +17,12 @@ const emojiTable = [
 	'🏜️',	 '🏔️',	  '🌋',   '🏭',   '🎠',   '⛩️',   '✈️',   '🚁',   '🚧'
 ];
 
+function getRandomIntInclusive(min: number, max: number): number {
+	min = Math.ceil(min);
+	max = Math.floor(max);
+	return Math.floor(Math.random() * (max - min + 1)) + min; //Максимум и минимум включаются
+}
+
 export type size = {
 	width: number;
 	height: number;
@@ -57,9 +63,11 @@ export class EmojiBuilder implements Builder {
 		if ((m * n) / 2 > 26) throw new Error('too big');
 		if ((m * n) % 2) throw new Error('must be even');
 
+		const rnd = getRandomIntInclusive(0, 20);
+
 		this.gameBoard.board = R.pipe(
 			() => R.range(0, (m * n) / 2), // ['🦍', '🦊', '🐒', ...]
-			R.map((i: number) => emojiTable[i]),
+			R.map((i: number) => emojiTable[i + rnd]),
 			R.chain(x => [x, x]),
 			L.shuffle,
 			R.map((symbol: string) => ({ symbol, status: Status.Closed }))
