@@ -23,17 +23,18 @@ export enum Status {
 export type State = {
 	secondsLeft: number;
 	status: Status;
-	gameConfig: GameBoard;
+	boardConfig: GameBoard;
+	settings: configuration;
 };
 
 const openCell =
 	(i: number) =>
 	(state: State): State => ({
 		...state,
-		gameConfig: {
-			...state.gameConfig,
+		boardConfig: {
+			...state.boardConfig,
 			board: Board.setStatusAt(i)(Cell.Status.Open)(
-				state.gameConfig.board
+				state.boardConfig.board
 			),
 		},
 	});
@@ -41,41 +42,41 @@ const openCell =
 const canOpenCell =
 	(i: number) =>
 	(state: State): boolean =>
-		Board.canOpenAt(i)(state.gameConfig.board);
+		Board.canOpenAt(i)(state.boardConfig.board);
 
 const succeedStep = (state: State): State => ({
 	...state,
-	gameConfig: {
-		...state.gameConfig,
+	boardConfig: {
+		...state.boardConfig,
 		board: Board.setStatusesBy(Cell.isOpen)(Cell.Status.Done)(
-			state.gameConfig.board
+			state.boardConfig.board
 		),
 	},
 });
 
 const failStep1 = (state: State): State => ({
 	...state,
-	gameConfig: {
-		...state.gameConfig,
+	boardConfig: {
+		...state.boardConfig,
 		board: Board.setStatusesBy(Cell.isOpen)(Cell.Status.Failed)(
-			state.gameConfig.board
+			state.boardConfig.board
 		),
 	},
 });
 
 const failStep2 = (state: State): State => ({
 	...state,
-	gameConfig: {
-		...state.gameConfig,
+	boardConfig: {
+		...state.boardConfig,
 		board: Board.setStatusesBy(Cell.isFailed)(Cell.Status.Closed)(
-			state.gameConfig.board
+			state.boardConfig.board
 		),
 	},
 });
 
 const hasWinningCond = (state: State): boolean =>
-	R.filter(Cell.isDone, state.gameConfig.board).length ==
-	state.gameConfig.board.length;
+	R.filter(Cell.isDone, state.boardConfig.board).length ==
+	state.boardConfig.board.length;
 
 const hasLosingCond = (state: State): boolean => !state.secondsLeft;
 
@@ -93,18 +94,20 @@ const nextSecond = (state: State): State => ({
 const GameView: React.FC = () => {
 	//Начальные настройки
 	let builder: WordBuilder | EmojiBuilder = new WordBuilder();
-	let director = new Director(builder);
-	let gameConf = director.createLowGameBoard();
+	let director: Director = new Director(builder);
+	let boardConf: GameBoard = director.createLowGameBoard();
+	let settings: configuration = {complexity: 'easy', alphabet: 'word'};
 
 
 	const [state, setState] = useState<State>({
 		secondsLeft: 100,
-		gameConfig: gameConf,
 		status: Status.Stopped,
+		boardConfig: boardConf,
+		settings
 	});
 
-	const { status, secondsLeft, gameConfig } = state;
-	const { board } = state.gameConfig;
+	const { status, secondsLeft, boardConfig } = state;
+	const { board } = state.boardConfig;
 
 	const handleStartingClick = () => {
 		if (status != Status.Running) {
@@ -128,6 +131,8 @@ const GameView: React.FC = () => {
 		}
 	};
 
+	const handleExitClick = () => applySettings(state.settings);
+
 	const applySettings = (configuration: configuration) => {
 		switch (configuration.alphabet) {
 			case 'emoji':
@@ -142,20 +147,21 @@ const GameView: React.FC = () => {
 
 		switch (configuration.complexity) {
 			case 'easy':
-				gameConf = director.createLowGameBoard();
+				boardConf = director.createLowGameBoard();
 				break;
 			case 'medium':
-				gameConf = director.createMedGameBoard();
+				boardConf = director.createMedGameBoard();
 				break;
 			case 'hard':
-				gameConf = director.createHighGameBoard();
+				boardConf = director.createHighGameBoard();
 				break;
 		}
 
 		setState({
 			secondsLeft: 100,
-			status: Status.Running,
-			gameConfig: gameConf,
+			status: Status.Stopped,
+			boardConfig: boardConf,
+			settings: configuration
 		});
 	}
 
@@ -200,10 +206,10 @@ const GameView: React.FC = () => {
 
 	return (
 		<div className="container" onClick={handleStartingClick}>
-			<StatusLineView status={status} secondsLeft={secondsLeft} />
+			<StatusLineView status={status} secondsLeft={secondsLeft} exitHandler={handleExitClick}/>
 			<ScreenBoxView
 				status={status}
-				gameConfig={gameConfig}
+				boardConfig={boardConfig}
 				onClickAt={handleRunningClick}
 				onSettings={handleSettingsClick}
 				applySettings={applySettings}
@@ -215,14 +221,16 @@ const GameView: React.FC = () => {
 type StatusLineProps = {
 	status: Status;
 	secondsLeft: number;
+	exitHandler: () => void;
 };
 
-const StatusLineView: React.FC<StatusLineProps> = ({ status, secondsLeft }) => {
+const StatusLineView: React.FC<StatusLineProps> = ({ status, secondsLeft, exitHandler }) => {
 	return (
 		<>
 			<div className="status-line">
+				{status == Status.Running && <button onClick={exitHandler}>❌</button>}
 				<div>Открывай карточки&nbsp;🐰</div>
-				<div>
+				<div className="seconds">
 					{status == Status.Running && `Секунды: ${secondsLeft}`}
 				</div>
 			</div>
@@ -232,8 +240,15 @@ const StatusLineView: React.FC<StatusLineProps> = ({ status, secondsLeft }) => {
 						color: gray;
 						display: flex;
 						padding-bottom: 10px;
-						justify-content: space-between;
 						font-size: 1.5rem;
+					}
+					.status-line button {
+						background: none;
+						padding: 0;
+						margin-right: 5px;
+					}
+					.seconds {
+						margin-left: auto;
 					}
 				`}
 			</style>
@@ -244,7 +259,7 @@ const StatusLineView: React.FC<StatusLineProps> = ({ status, secondsLeft }) => {
 type ScreenBoxViewProps = {
 	status: Status;
 	onClickAt: (i: number) => void;
-	gameConfig: GameBoard;
+	boardConfig: GameBoard;
 	onSettings: () => void;
 	applySettings: (configuration: configuration) => void;
 };
@@ -252,7 +267,7 @@ type ScreenBoxViewProps = {
 const ScreenBoxView: React.FC<ScreenBoxViewProps> = ({
 	status,
 	onClickAt,
-	gameConfig,
+	boardConfig,
 	onSettings,
 	applySettings
 }) => {
@@ -260,8 +275,8 @@ const ScreenBoxView: React.FC<ScreenBoxViewProps> = ({
 		case Status.Running:
 			return (
 				<Board.BoardView
-					board={gameConfig.board}
-					size={gameConfig.size}
+					board={boardConfig.board}
+					size={boardConfig.size}
 					onClickAt={onClickAt}
 				/>
 			);
@@ -369,19 +384,19 @@ type configuration = {
 };
 
 export const SettingsScreen: React.FC<SettingsScreenProps> = ({ applySettings }) => {
-	const [configuration, setConfiguration] = useState<configuration>({complexity: 'easy', alphabet: 'emoji'});
+	const [configuration, setConfiguration] = useState<configuration>({complexity: 'easy', alphabet: 'word'});
 
 	const setComplexity = (complexity: string) => {
 		setConfiguration({
 			...configuration,
-			complexity: complexity,
+			complexity,
 		} as configuration);
 	};
 
 	const setAlphabet = (alphabet: string) => {
 		setConfiguration({
 			...configuration,
-			alphabet: alphabet,
+			alphabet,
 		} as configuration);
 	};
 
@@ -414,6 +429,10 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ applySettings })
 					height: 480px;
 					position: relative;
 				}
+				.settings * {
+					margin: 0;
+					padding: 0;
+				}
 				.settings form {
 					width: 100%;
 					position: absolute;
@@ -422,6 +441,27 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ applySettings })
 					flex-direction: column;
 					padding: 10px;
 					transform: translateY(-50%);
+				}
+				.settings p {
+					margin-bottom: 5px;
+					padding-left: 5px;
+					font-weight: bold;
+				}
+				.settings select {
+					height: 30px;
+					border: none;
+					margin-bottom: 10px;
+					outline: none;
+					border-radius: 5px;
+					padding-left: 5px;
+				} 
+				.settings button {
+					font-size: 16px;
+					margin-top: 20px;
+					width: 40%;
+					height: 30px;
+					align-self: center;
+					border-radius: 5px;
 				}
 			`}</style>
 		</>

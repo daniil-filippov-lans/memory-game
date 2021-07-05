@@ -45,7 +45,7 @@ export const cellView: React.FC<cellViewProps> = ({ cell, onClick }) => {
 			{status == Status.Closed ? '' : symbol}
 			<style jsx>{`
 				.cell {
-					font-size: 4rem;
+					font-size: 3rem;
 					background: gray;
 					display: flex;
 					align-items: center;
